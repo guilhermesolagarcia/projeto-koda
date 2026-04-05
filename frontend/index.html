@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KODA</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0e0e11;
+      --surface: #16161a;
+      --surface2: #1e1e24;
+      --border: #2a2a32;
+      --text: #e8e8f0;
+      --text-muted: #7070888;
+      --text-dim: #555566;
+      --koda-bubble: #1e1e2e;
+      --user-bubble: #2a2a4a;
+      --accent: #8b8bff;
+      --accent-soft: rgba(139,139,255,0.12);
+      --accent-glow: rgba(139,139,255,0.25);
+      --danger: #ff6b8a;
+      --scrollbar: #2a2a32;
+    }
+    :root[data-theme="light"] {
+      --bg: #f4f4f8;
+      --surface: #ffffff;
+      --surface2: #ebebf2;
+      --border: #dddde8;
+      --text: #1a1a2e;
+      --text-muted: #888899;
+      --text-dim: #aaaabc;
+      --koda-bubble: #ffffff;
+      --user-bubble: #e8e8ff;
+      --accent: #5a5aff;
+      --accent-soft: rgba(90,90,255,0.08);
+      --accent-glow: rgba(90,90,255,0.15);
+      --danger: #e0405a;
+      --scrollbar: #dddde8;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .koda-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #b06aff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 16px;
+      color: white;
+      letter-spacing: -0.5px;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .header-info h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: -0.3px;
+      line-height: 1;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4cff8f;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* DISCLAIMER */
+    .disclaimer {
+      background: var(--accent-soft);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      text-align: center;
+      flex-shrink: 0;
+      line-height: 1.5;
+    }
+
+    .disclaimer strong {
+      color: var(--accent);
+    }
+
+    /* MESSAGES */
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      scroll-behavior: smooth;
+    }
+
+    #messages::-webkit-scrollbar { width: 4px; }
+    #messages::-webkit-scrollbar-track { background: transparent; }
+    #messages::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+
+    .message {
+      display: flex;
+      gap: 10px;
+      max-width: 75%;
+      animation: fadeUp 0.3s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.koda { align-self: flex-start; }
+    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--accent), #b06aff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 12px;
+      color: white;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .msg-avatar.user-av {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.65;
+      max-width: 100%;
+      word-break: break-word;
+    }
+
+    .message.koda .bubble {
+      background: var(--koda-bubble);
+      border: 1px solid var(--border);
+      border-top-left-radius: 4px;
+      color: var(--text);
+    }
+
+    .message.user .bubble {
+      background: var(--user-bubble);
+      border: 1px solid var(--accent);
+      border-top-right-radius: 4px;
+      color: var(--text);
+    }
+
+    .msg-time {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 5px;
+      padding: 0 4px;
+    }
+
+    .message.koda .msg-time { text-align: left; }
+    .message.user .msg-time { text-align: right; }
+
+    .msg-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TYPING */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 14px 18px;
+      background: var(--koda-bubble);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      border-top-left-radius: 4px;
+      width: fit-content;
+    }
+
+    .typing-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: bounce 1.2s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* WELCOME */
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 16px;
+      padding: 40px 20px;
+      flex: 1;
+    }
+
+    .welcome-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--accent), #b06aff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      color: white;
+      box-shadow: 0 0 32px var(--accent-glow);
+      margin-bottom: 8px;
+    }
+
+    .welcome h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome p {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 320px;
+      line-height: 1.7;
+    }
+
+    .welcome-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .chip {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    /* INPUT */
+    .input-area {
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 12px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    #userInput {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      resize: none;
+      max-height: 120px;
+      overflow-y: auto;
+      padding: 2px 0;
+    }
+
+    #userInput::placeholder { color: var(--text-dim); }
+
+    #userInput::-webkit-scrollbar { width: 3px; }
+    #userInput::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
+
+    .send-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--accent);
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      font-size: 15px;
+    }
+
+    .send-btn:hover { opacity: 0.85; transform: scale(1.05); }
+    .send-btn:active { transform: scale(0.97); }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .input-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* CRISIS BANNER */
+    .crisis-banner {
+      display: none;
+      background: rgba(255, 107, 138, 0.1);
+      border: 1px solid rgba(255, 107, 138, 0.3);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin: 0 24px 12px;
+      font-size: 13px;
+      color: var(--danger);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .crisis-banner.visible { display: block; }
+    .crisis-banner strong { display: block; font-size: 14px; margin-bottom: 4px; }
+
+    /* SCROLLBAR GLOBAL */
+    * { scrollbar-width: thin; scrollbar-color: var(--scrollbar) transparent; }
+
+    @media (max-width: 600px) {
+      #messages { padding: 20px 16px; }
+      .message { max-width: 90%; }
+      .input-area { padding: 12px 16px 16px; }
+      header { padding: 14px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="koda-avatar">K</div>
+    <div class="header-info">
+      <h1>KODA</h1>
+      <div class="status">
+        <div class="status-dot"></div>
+        <span>disponível agora</span>
+      </div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="toggleTheme()" title="Alternar tema">🌙</button>
+    <button class="icon-btn" onclick="clearChat()" title="Limpar conversa">🗑️</button>
+  </div>
+</header>
+
+<div class="disclaimer">
+  <strong>KODA</strong> é um projeto experimental de apoio emocional. Não substitui psicólogos ou serviços de emergência. Em crise: <strong>CVV 188</strong>
+</div>
+
+<div id="messages">
+  <div class="welcome" id="welcome">
+    <div class="welcome-icon">K</div>
+    <h2>Olá, eu sou o KODA</h2>
+    <p>Seu companheiro de conversas. Estou aqui pra ouvir, sem julgamentos, a qualquer hora.</p>
+    <div class="welcome-chips">
+      <div class="chip" onclick="sendChip(this)">Preciso desabafar</div>
+      <div class="chip" onclick="sendChip(this)">Tô com ansiedade</div>
+      <div class="chip" onclick="sendChip(this)">Me sinto sozinho</div>
+      <div class="chip" onclick="sendChip(this)">Quero um conselho</div>
+    </div>
+  </div>
+</div>
+
+<div class="crisis-banner" id="crisisBanner">
+  <strong>❤️ Você não está sozinho</strong>
+  CVV — Centro de Valorização da Vida: ligue <strong>188</strong> (24h, gratuito)
+</div>
+
+<div class="input-area">
+  <div class="input-wrapper">
+    <textarea id="userInput" rows="1" placeholder="Como você tá hoje?" maxlength="1000"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+  <div class="input-hint">Enter para enviar · Shift+Enter para nova linha</div>
+</div>
+
+<script>
+  const CRISIS_KEYWORDS = ['suicídio','suicidio','me matar','quero morrer','não quero mais viver','nao quero mais viver','me machucar','automutilação','automutilaçao','desaparecer','fim da minha vida'];
+
+  let historico = [];
+  let isLoading = false;
+
+  // Carregar histórico salvo
+  window.addEventListener('load', () => {
+    const saved = localStorage.getItem('koda_historico');
+    if (saved) {
+      historico = JSON.parse(saved);
+      historico.forEach(msg => {
+        if (msg.role !== 'system') {
+          renderMessage(msg.content, msg.role === 'user' ? 'user' : 'koda');
+        }
+      });
+      if (historico.length > 0) {
+        document.getElementById('welcome').style.display = 'none';
+      }
+    }
+    const theme = localStorage.getItem('koda_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    updateThemeBtn(theme);
+  });
+
+  function saveHistorico() {
+    localStorage.setItem('koda_historico', JSON.stringify(historico));
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('koda_theme', next);
+    updateThemeBtn(next);
+  }
+
+  function updateThemeBtn(theme) {
+    document.querySelector('.icon-btn[onclick="toggleTheme()"]').textContent = theme === 'dark' ? '☀️' : '🌙';
+  }
+
+  function clearChat() {
+    if (!confirm('Limpar toda a conversa?')) return;
+    historico = [];
+    localStorage.removeItem('koda_historico');
+    const msgs = document.getElementById('messages');
+    msgs.innerHTML = `
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">K</div>
+        <h2>Olá, eu sou o KODA</h2>
+        <p>Seu companheiro de conversas. Estou aqui pra ouvir, sem julgamentos, a qualquer hora.</p>
+        <div class="welcome-chips">
+          <div class="chip" onclick="sendChip(this)">Preciso desabafar</div>
+          <div class="chip" onclick="sendChip(this)">Tô com ansiedade</div>
+          <div class="chip" onclick="sendChip(this)">Me sinto sozinho</div>
+          <div class="chip" onclick="sendChip(this)">Quero um conselho</div>
+        </div>
+      </div>`;
+    document.getElementById('crisisBanner').classList.remove('visible');
+  }
+
+  function checkCrisis(text) {
+    const lower = text.toLowerCase();
+    return CRISIS_KEYWORDS.some(kw => lower.includes(kw));
+  }
+
+  function getTime() {
+    return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderMessage(text, role) {
+    const welcome = document.getElementById('welcome');
+    if (welcome) welcome.style.display = 'none';
+
+    const msgs = document.getElementById('messages');
+    const msg = document.createElement('div');
+    msg.className = `message ${role}`;
+
+    const avatar = role === 'koda'
+      ? `<div class="msg-avatar">K</div>`
+      : `<div class="msg-avatar user-av">👤</div>`;
+
+    msg.innerHTML = `
+      ${avatar}
+      <div class="msg-wrapper">
+        <div class="bubble">${text.replace(/\n/g, '<br>')}</div>
+        <div class="msg-time">${getTime()}</div>
+      </div>`;
+
+    msgs.appendChild(msg);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function renderTyping() {
+    const msgs = document.getElementById('messages');
+    const el = document.createElement('div');
+    el.className = 'message koda';
+    el.id = 'typing';
+    el.innerHTML = `
+      <div class="msg-avatar">K</div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>`;
+    msgs.appendChild(el);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typing');
+    if (el) el.remove();
+  }
+
+  function sendChip(el) {
+    document.getElementById('userInput').value = el.textContent;
+    sendMessage();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if (!text || isLoading) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+    isLoading = true;
+    document.getElementById('sendBtn').disabled = true;
+
+    renderMessage(text, 'user');
+
+    if (checkCrisis(text)) {
+      document.getElementById('crisisBanner').classList.add('visible');
+    }
+
+    historico.push({ role: 'user', content: text });
+
+    renderTyping();
+
+    try {
+      const res = await fetch('http://127.0.0.1:8000/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mensagem: text, historico: historico.slice(0, -1) })
+      });
+
+      const data = await res.json();
+      removeTyping();
+      renderMessage(data.resposta, 'koda');
+      historico.push({ role: 'assistant', content: data.resposta });
+      saveHistorico();
+
+    } catch (err) {
+      removeTyping();
+      renderMessage('Ops, tive um problema pra te responder agora. Tenta de novo?', 'koda');
+    }
+
+    isLoading = false;
+    document.getElementById('sendBtn').disabled = false;
+    input.focus();
+  }
+
+  // Auto-resize textarea
+  const input = document.getElementById('userInput');
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+</script>
+</body>
+</html>
