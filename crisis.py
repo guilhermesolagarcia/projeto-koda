@@ -3,34 +3,36 @@ from dataclasses import dataclass
 from typing import Tuple, List
 
 # ============================================================================
-# KODA: MÓDULO DE GESTÃO DE CRISES (CRISIS.PY)
+# KODA: MÓDULO DE GESTÃO DE CRISES E GROUNDING (CRISIS.PY) v2.0
 # Propósito: Interceptar padrões linguísticos de risco extremo e retornar
-# protocolos de grounding (ancoragem) e encaminhamento quente (CVV).
+# protocolos de ancoragem ou encaminhamento quente (CVV) IMEDIATAMENTE.
 # ============================================================================
 
 @dataclass
 class CrisisState:
     is_crisis: bool
-    severity: str  # 'low', 'medium', 'high', 'critical'
+    severity: str  # 'none', 'high', 'critical'
     trigger_word: str
 
 class CrisisManager:
     def __init__(self):
-        # Gatilhos de nível CRÍTICO (Ação Imediata Necessária)
+        # Gatilhos de nível CRÍTICO (Ação Imediata Necessária - Módulo 10)
+        # Expandido para capturar o "Vazio Absoluto" do Módulo 9.12
         self.critical_triggers: List[str] = [
-            r"\bsuicidio\b", r"\bsuicídio\b", r"\bme matar\b",
-            r"\bquero morrer\b", r"\bnao quero mais viver\b",
-            r"\bnão quero mais viver\b", r"\bdesistir de viver\b",
+            r"\bsuic[ií]dio\b", r"\bme matar\b", r"\bquero morrer\b", 
+            r"\bn[aã]o quero mais viver\b", r"\bdesistir de viver\b",
             r"\bacabar com tudo\b", r"\bme jogar\b", r"\bme cortar\b",
-            r"\btomar remedios\b", r"\boverdose\b", r"\bautomutilacao\b",
-            r"\bautomutilação\b", r"\bdar um fim\b", r"\bfim da minha vida\b"
+            r"\btomar rem[eé]dios\b", r"\boverdose\b", r"\bautomutila[cç][aã]o\b",
+            r"\bdar um fim\b", r"\bfim da minha vida\b", r"\bnada mais importa\b",
+            r"\bmelhor se eu n[aã]o existisse\b", r"\bqueria dormir pra sempre\b",
+            r"\bme despedir\b", r"\bn[aã]o vejo mais sa[ií]da\b"
         ]
 
-        # Gatilhos de nível ALTO (Pânico / Ansiedade Extrema)
+        # Gatilhos de nível ALTO (Pânico / Ansiedade Extrema Aguda)
         self.high_triggers: List[str] = [
-            r"\bataque de panico\b", r"\bfalta de ar\b", r"\bnao consigo respirar\b",
-            r"\bdesespero absoluto\b", r"\bminha mente nao para\b",
-            r"\bsumir do mapa\b", r"\bdesaparecer\b", r"\bnao aguento mais\b"
+            r"\bataque de p[aâ]nico\b", r"\bfalta de ar\b", r"\bn[aã]o consigo respirar\b",
+            r"\bdesespero absoluto\b", r"\bminha mente n[aã]o para\b",
+            r"\bme tira daqui\b", r"\bn[aã]o aguento mais\b"
         ]
 
     def analyze_input(self, user_input: str) -> CrisisState:
@@ -45,7 +47,7 @@ class CrisisManager:
             if re.search(pattern, text):
                 return CrisisState(is_crisis=True, severity='critical', trigger_word=pattern)
 
-        # Checagem Alta (Crise Aguda)
+        # Checagem Alta (Crise Aguda de Pânico)
         for pattern in self.high_triggers:
             if re.search(pattern, text):
                 return CrisisState(is_crisis=True, severity='high', trigger_word=pattern)
@@ -65,7 +67,7 @@ class CrisisManager:
     def _critical_protocol(self) -> str:
         """
         Protocolo absoluto de proteção à vida e isenção de risco clínico.
-        O texto é imposto e o LLM não deve gerar nada além disso.
+        Texto imposto; o LLM não deve gerar nada além disso.
         """
         return (
             "Eu sinto muito, do fundo do meu código, que a dor esteja tão esmagadora agora. "
@@ -81,29 +83,6 @@ class CrisisManager:
     def _high_anxiety_protocol(self) -> str:
         """
         Protocolo de Ancoragem (Grounding) para ataques de pânico.
-        Foca em respiração e cognição periférica.
-        """
-        return (
-            "Eu estou percebendo que a situação está muito intensa e que você está em sofrimento agudo agora. "
-            "Eu estou aqui com você, você não está sozinho. 🫂\n\n"
-            "### 🌬️ Vamos focar no seu corpo agora:\n"
-            "- **Respire comigo:** Puxe o ar bem devagar pelo nariz contando até 4... e solte pela boca contando até 6.\n"
-            "- **Olhe ao redor:** Me diga, quais são 3 coisas da cor AZUL que você consegue ver perto de você agora?\n\n"
-            "Não precisamos resolver nenhum problema de vida hoje. Foca apenas em me responder o que você está vendo."
-        )
-
-# Gatilhos de nível CRÍTICO
-        self.critical_triggers: List[str] = [
-            r"\bsuic[ií]dio\b", r"\bme matar\b", r"\bquero morrer\b", 
-            r"\bn[aã]o quero mais viver\b", r"\bdesistir de viver\b",
-            r"\bacabar com tudo\b", r"\bme jogar\b", r"\bme cortar\b",
-            r"\btomar rem[eé]dios\b", r"\boverdose\b", r"\bautomutila[cç][aã]o\b"
-        ]
-
-
-    def _high_anxiety_protocol(self) -> str:
-        """
-        Protocolo de Ancoragem (Grounding) para ataques de pânico.
         Formatação estritamente conversacional (sem markdown pesado).
         """
         return (
@@ -115,13 +94,3 @@ class CrisisManager:
             "consegue ver perto de você? Não precisamos resolver nenhum problema agora, "
             "foca apenas em me responder o que você está vendo."
         )
-# ============================================================================
-# COMO USAR NO MAIN.PY:
-# from crisis import CrisisManager
-#
-# crisis_manager = CrisisManager()
-# state = crisis_manager.analyze_input(request.mensagem)
-# 
-# if state.is_crisis and state.severity == 'critical':
-#     return {"resposta": crisis_manager.get_crisis_protocol(state), "historico": ...}
-# ============================================================================

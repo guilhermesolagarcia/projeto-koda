@@ -47,7 +47,7 @@ def chat(request: ChatRequest):
 
     try:
         response = client.chat.completions.create(
-            model="google/gemini-2.0-flash-exp:free", 
+            model="openrouter/auto", 
             messages=historico
         )
         resposta = response.choices[0].message.content
