@@ -92,6 +92,29 @@ class CrisisManager:
             "Não precisamos resolver nenhum problema de vida hoje. Foca apenas em me responder o que você está vendo."
         )
 
+# Gatilhos de nível CRÍTICO
+        self.critical_triggers: List[str] = [
+            r"\bsuic[ií]dio\b", r"\bme matar\b", r"\bquero morrer\b", 
+            r"\bn[aã]o quero mais viver\b", r"\bdesistir de viver\b",
+            r"\bacabar com tudo\b", r"\bme jogar\b", r"\bme cortar\b",
+            r"\btomar rem[eé]dios\b", r"\boverdose\b", r"\bautomutila[cç][aã]o\b"
+        ]
+
+
+    def _high_anxiety_protocol(self) -> str:
+        """
+        Protocolo de Ancoragem (Grounding) para ataques de pânico.
+        Formatação estritamente conversacional (sem markdown pesado).
+        """
+        return (
+            "Eu estou percebendo que a situação está muito intensa e que a ansiedade "
+            "está falando bem alto agora. Eu estou aqui com você. 🫂\n\n"
+            "Vamos tentar focar no seu corpo por um instante. Respire comigo: puxe o ar bem "
+            "devagar pelo nariz contando até 4... e solte pela boca contando até 6.\n\n"
+            "Agora, olhe ao redor. Me diga, quais são 3 coisas da cor AZUL que você "
+            "consegue ver perto de você? Não precisamos resolver nenhum problema agora, "
+            "foca apenas em me responder o que você está vendo."
+        )
 # ============================================================================
 # COMO USAR NO MAIN.PY:
 # from crisis import CrisisManager
