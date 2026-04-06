@@ -228,8 +228,9 @@ function cancelEdit() {
 
 async function redoMessage(index) {
   if (isLoading) return;
+  const savedHistorico = JSON.parse(localStorage.getItem('koda_historico'));
+  const lastUserText = savedHistorico[index - 1].content;
   historico = historico.slice(0, index - 1);
-  const lastUserText = JSON.parse(localStorage.getItem('koda_historico'))[index - 1].content;
   saveHistorico();
   reloadChatUI();
   document.getElementById('userInput').value = lastUserText;

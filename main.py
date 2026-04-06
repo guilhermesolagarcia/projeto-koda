@@ -47,11 +47,12 @@ def chat(request: ChatRequest):
 
     try:
         response = client.chat.completions.create(
-            model="openai/gpt-4o-mini", # Garante a inteligência em português
+            model="google/gemini-2.0-flash-exp:free", 
             messages=historico
         )
         resposta = response.choices[0].message.content
     except Exception as e:
+        print(f"\n🚨 ERRO NA CHAMADA DA API: {e}\n") 
         resposta = "Desculpe, a minha conexão vacilou por um segundo. Pode tentar me mandar de novo?"
 
     historico_atualizado = request.historico + [
