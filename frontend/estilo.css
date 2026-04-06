@@ -20,6 +20,9 @@
   
   --danger-bg: #fff0f0;
   --danger-text: #d96c6c;
+
+  /* LOGO DO MODO CLARO */
+  --koda-logo: url('img/logo-preta.png');
 }
 
 :root[data-theme="dark"] {
@@ -41,6 +44,9 @@
   
   --danger-bg: #3b2424;
   --danger-text: #e68e8e;
+
+  /* LOGO DO MODO ESCURO */
+  --koda-logo: url('../img/logo-verde.png');
 }
 
 /* =========================================
@@ -80,15 +86,11 @@ body {
 
 .header-left { display: flex; align-items: center; gap: 12px; }
 
-.koda-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 14px; 
-  background-color: var(--surface-color);
-  color: var(--accent-color);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'DM Serif Display', serif;
-  font-size: 18px;
+.koda-logo {
+  width: 46px;
+  height: 46px;
+  border-radius: 18px;
+  object-fit: cover; /* Garante que a imagem preencha o espaço sem distorcer */
   box-shadow: var(--shadow-soft);
   border: 1px solid var(--border-color);
 }
@@ -310,6 +312,27 @@ body {
   background: var(--surface-color); /* Dá um fundinho suave ao passar o mouse */
   color: var(--accent-color);
   transform: translateY(-1px);
+}
+
+
+/* =========================================
+   APLICAÇÃO DINÂMICA DA LOGO (KODA)
+   ========================================= */
+.koda-avatar, .welcome-icon, .msg-avatar:not(.user-av) {
+  background-image: var(--koda-logo);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: transparent !important; 
+  background-color: transparent !important; 
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.msg-avatar.user-av {
+  background-color: var(--surface-color) !important;
+  color: var(--text-muted) !important;
+  box-shadow: var(--shadow-soft) !important;
 }
 
 

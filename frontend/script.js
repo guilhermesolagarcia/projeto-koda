@@ -66,10 +66,10 @@ function clearChat() {
     <div class="welcome" id="welcome">
       <div class="welcome-icon">K</div>
       <h2>Olá, eu sou o KODA</h2>
-      <p>Seu companheiro de conversas. Estou aqui pra te ouvir, sem julgamentos, a qualquer hora.</p>
+      <p>Este é o seu espaço seguro. Estou aqui para te ouvir, sem julgamentos, a qualquer hora do dia ou da noite.</p>
       <div class="welcome-chips">
         <button class="chip" onclick="sendChip(this)">Preciso desabafar</button>
-        <button class="chip" onclick="sendChip(this)">Tô com ansiedade</button>
+        <button class="chip" onclick="sendChip(this)">Tô com muita ansiedade</button>
         <button class="chip" onclick="sendChip(this)">Me sinto sozinho hoje</button>
         <button class="chip" onclick="sendChip(this)">Quero um conselho</button>
       </div>
