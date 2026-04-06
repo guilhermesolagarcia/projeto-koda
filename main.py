@@ -30,7 +30,6 @@ class ChatRequest(BaseModel):
     mensagem: str
     historico: list = []
 
-
 @app.post("/chat")
 def chat(request: ChatRequest):
     state = crisis_manager.analyze_input(request.mensagem)
@@ -48,7 +47,7 @@ def chat(request: ChatRequest):
 
     try:
         response = client.chat.completions.create(
-            model="openai/gpt-4o-mini", 
+            model="openai/gpt-4o-mini", # Garante a inteligência em português
             messages=historico
         )
         resposta = response.choices[0].message.content
@@ -65,4 +64,7 @@ def chat(request: ChatRequest):
         "historico": historico_atualizado
     }
 
+# ==============================================================
+# IMPORTANTE: Esta linha DEVE ser sempre a última do arquivo!
+# ==============================================================
 app.mount("/", StaticFiles(directory=".", html=True), name="static")

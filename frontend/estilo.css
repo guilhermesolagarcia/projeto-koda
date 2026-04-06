@@ -352,3 +352,47 @@ body {
   .input-wrapper { padding: 8px 8px 8px 20px; }
   .send-btn { width: 48px; height: 48px; }
 }
+
+/* =========================================
+   AJUSTES PARA CELULAR (BOTÕES DE AÇÃO TOUCH)
+   ========================================= */
+@media (max-width: 768px) {
+  .msg-actions {
+    opacity: 0.85;
+    gap: 14px;
+    margin-top: 10px;
+  }
+  
+  .action-btn {
+    padding: 10px 12px; 
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+  }
+}
+
+
+/* =========================================
+   BANNER DE EDIÇÃO
+   ========================================= */
+.edit-banner {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--accent-soft);
+  padding: 8px 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--accent-color);
+  animation: softFadeIn 0.3s ease;
+}
+.edit-banner span { font-weight: 500; }
+.cancel-edit-btn {
+  background: transparent;
+  border: none;
+  color: var(--danger-text);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 8px;
+}

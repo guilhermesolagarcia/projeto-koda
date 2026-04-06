@@ -1,0 +1,22 @@
+{
+  "name": "KODA | Espaço Seguro",
+  "short_name": "KODA",
+  "description": "IA de apoio emocional e escuta ativa.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#18191a",
+  "theme_color": "#18191a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "img/logo-verde.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/logo-verde.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

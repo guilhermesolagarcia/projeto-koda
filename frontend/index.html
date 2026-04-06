@@ -10,6 +10,12 @@
   
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#18191a">
+  <link rel="apple-touch-icon" href="img/logo-verde.png">
+
+
   <link rel="stylesheet" href="estilo.css" />
 </head>
 <body>
@@ -55,12 +61,17 @@
   </div>
 
   <footer class="input-area">
+    <div class="edit-banner" id="editBanner">
+      <span>✏️ Editando mensagem anterior...</span>
+      <button class="cancel-edit-btn" onclick="cancelEdit()">Cancelar</button>
+    </div>
+    
     <div class="input-wrapper">
       <textarea id="userInput" rows="1" placeholder="O que está pesando na sua mente hoje?" maxlength="1000"></textarea>
       <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Enviar mensagem">➤</button>
     </div>
     <div class="input-hint">Enter para enviar · Shift+Enter para quebrar linha</div>
-  </footer>
+   </footer>
 
   <script src="script.js"></script>
 </body>

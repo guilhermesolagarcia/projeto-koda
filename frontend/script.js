@@ -7,6 +7,7 @@ const CRISIS_KEYWORDS = [
 
 let historico = [];
 let isLoading = false;
+let editingIndex = null; // Variável nova para controlar se estamos editando
 
 document.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('koda_historico');
@@ -61,6 +62,7 @@ function clearChat() {
   if (!confirm('Tem certeza que deseja apagar toda a conversa?')) return;
   historico = [];
   localStorage.removeItem('koda_historico');
+  cancelEdit(); // Se apagar o chat, cancela qualquer edição ativa
   const msgs = document.getElementById('messages');
   msgs.innerHTML = `
     <div class="welcome" id="welcome">
@@ -87,7 +89,7 @@ function getTime() {
 }
 
 // -----------------------------------------------------
-// RENDERIZAÇÃO COM BOTÕES DE AÇÃO
+// RENDERIZAÇÃO
 // -----------------------------------------------------
 function renderMessage(text, role, index = null) {
   const welcome = document.getElementById('welcome');
@@ -115,7 +117,6 @@ function renderMessage(text, role, index = null) {
   }
 
   let actionButtons = '';
-  
   const copyIcon = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
   const editIcon = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>`;
   const redoIcon = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>`;
@@ -168,25 +169,61 @@ function removeTyping() {
 }
 
 // -----------------------------------------------------
-// FUNÇÕES DOS BOTÕES (COPIAR, EDITAR, REFAZER)
+// FUNÇÕES DOS BOTÕES E EDIÇÃO (Com Fallback para Celular)
 // -----------------------------------------------------
 function copyMessage(btnElement) {
   const bubble = btnElement.closest('.msg-wrapper').querySelector('.bubble');
-  navigator.clipboard.writeText(bubble.innerText).then(() => {
+  const textToCopy = bubble.innerText;
+
+  const showSuccess = () => {
     const originalHTML = btnElement.innerHTML;
     btnElement.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
     setTimeout(() => { btnElement.innerHTML = originalHTML; }, 2000);
-  });
+  };
+
+  // Tenta usar a API moderna (funciona no PC ou com HTTPS)
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(textToCopy).then(showSuccess);
+  } else {
+    // PLANO B: Hack antigo que dribla o bloqueio do celular
+    const textArea = document.createElement("textarea");
+    textArea.value = textToCopy;
+    textArea.style.position = "fixed"; // Evita que a tela pule
+    textArea.style.left = "-9999px";
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showSuccess();
+    } catch (err) {
+      console.error('Erro ao copiar no celular', err);
+    }
+    document.body.removeChild(textArea);
+  }
 }
 
+// Inicia o Modo de Edição (Não apaga nada ainda!)
 function editMessage(index) {
+  editingIndex = index;
   const msgToEdit = historico[index].content;
   const input = document.getElementById('userInput');
+  
   input.value = msgToEdit;
   input.focus();
-  historico = historico.slice(0, index);
-  saveHistorico();
-  reloadChatUI();
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 150) + 'px';
+  
+  // Mostra o aviso que estamos editando
+  document.getElementById('editBanner').style.display = 'flex';
+}
+
+// Cancela o Modo de Edição
+function cancelEdit() {
+  editingIndex = null;
+  const input = document.getElementById('userInput');
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('editBanner').style.display = 'none';
 }
 
 async function redoMessage(index) {
@@ -223,6 +260,14 @@ async function sendMessage() {
   
   if (!text || isLoading) return;
 
+  // VERIFICA SE É UMA MENSAGEM NOVA OU UMA EDIÇÃO CONCLUÍDA
+  if (editingIndex !== null) {
+    historico = historico.slice(0, editingIndex); // Agora sim a gente corta o histórico antigo!
+    editingIndex = null;
+    document.getElementById('editBanner').style.display = 'none';
+    reloadChatUI(); // Limpa as mensagens velhas da tela
+  }
+
   input.value = '';
   input.style.height = 'auto';
   isLoading = true;
@@ -238,7 +283,7 @@ async function sendMessage() {
   renderTyping();
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/chat', {
+    const res = await fetch('/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mensagem: text, historico: historico.slice(0, -1) })
