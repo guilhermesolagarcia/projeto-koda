@@ -26,6 +26,28 @@ client = OpenAI(
 
 crisis_manager = CrisisManager()
 
+MODELOS_FALLBACK = [
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "mistralai/mistral-small-3.1-24b-instruct:free",
+    "deepseek/deepseek-chat-v3-0324:free",
+    "google/gemma-3-27b-it:free",
+    "openrouter/auto",
+]
+
+def chamar_api(historico):
+    for modelo in MODELOS_FALLBACK:
+        try:
+            response = client.chat.completions.create(
+                model=modelo,
+                messages=historico
+            )
+            print(f"✅ Modelo usado: {modelo}")
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"⚠️ {modelo} falhou: {e}")
+            continue
+    return "Desculpe, tô com instabilidade agora. Pode tentar de novo?"
+
 class ChatRequest(BaseModel):
     mensagem: str
     historico: list = []
@@ -45,15 +67,7 @@ def chat(request: ChatRequest):
     historico += request.historico
     historico.append({"role": "user", "content": request.mensagem})
 
-    try:
-        response = client.chat.completions.create(
-            model="openrouter/auto", 
-            messages=historico
-        )
-        resposta = response.choices[0].message.content
-    except Exception as e:
-        print(f"\n🚨 ERRO NA CHAMADA DA API: {e}\n") 
-        resposta = "Desculpe, a minha conexão vacilou por um segundo. Pode tentar me mandar de novo?"
+    resposta = chamar_api(historico)
 
     historico_atualizado = request.historico + [
         {"role": "user", "content": request.mensagem},
@@ -68,4 +82,4 @@ def chat(request: ChatRequest):
 # ==============================================================
 # IMPORTANTE: Esta linha DEVE ser sempre a última do arquivo!
 # ==============================================================
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
+app.mount("/", StaticFiles(directory="frontend", html=True), name="static")
